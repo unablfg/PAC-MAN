@@ -102,6 +102,38 @@ class Ghost(pygame.sprite.Sprite):
             self.change_image(choice(['LEFT', 'RIGHT', 'UP', 'DOWN']), choice([1, 2]))
 
 
+class Blinky(Ghost):
+    def __init__(self, group):
+        super().__init__(choice([14, 13]), 11, group)
+        self.respawn_point = (11, 14)
+        for direction, phases in list(self.images.items())[:-1]:
+            if direction != 'EYES':
+                for phase in phases.keys():
+                    file_name = f'BLINKY_{direction}_PHASE_{phase}.png'
+                    self.images[direction][phase] = load_image(file_name, (0, 0, 0))
+
+    def calculate_target_cell(self, packman_pos):
+        if self.mode == 'HARASSMENT':
+            return packman_pos
+        elif self.mode == 'FRIGHT':
+            next_steps = list(filter(lambda x: self.is_free(*x) and x != self.get_last_position(),
+                                     map(lambda z: (self.x + z[0], self.y + z[1]), [(1, 0), (0, 1), (-1, 0), (0, -1)])))
+            return choice(next_steps)
+        else:
+            return self.respawn_point
+
+    def update(self, packman_pos):
+        if not self.part_of_tile:
+            self.move(self.calculate_target_cell(packman_pos))
+        self.part_of_tile += -1 if self.direction in ('LEFT', 'UP') else 1
+        if abs(self.part_of_tile) == 2:
+            self.last_x, self.last_y = self.x, self.y
+            self.x, self.y = self.next_x, self.next_y
+            self.part_of_tile *= -1
+
+        self.change_image(self.direction, self.part_of_tile % 2 + 1)
+
+
 class Pinky(Ghost):
     def __init__(self, group):
         super().__init__(11, 14, group)
