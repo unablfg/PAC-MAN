@@ -40,3 +40,9 @@ class Ghost(pygame.sprite.Sprite):
         else:
             self.rect.x = self.x * CELL_SIZE + self.part_of_tile * 6
             self.rect.y = self.y * CELL_SIZE + TOP_MARGIN
+
+    def get_position(self):
+        return self.x, self.y
+
+    def get_last_position(self):
+        return self.last_x, self.last_y
