@@ -1,5 +1,6 @@
 import pygame
 from load_image_function import load_image
+from game_sizes import CELL_SIZE, TOP_MARGIN
 
 
 class Ghost(pygame.sprite.Sprite):
@@ -10,7 +11,6 @@ class Ghost(pygame.sprite.Sprite):
         self.y = y
         self.last_x = x
         self.last_y = y
-        self.is_alive = True
         self.mode = 'HARASSMENT'  # 'HARASSMENT' - преследование; 'RETURNING_HOME' - возвращение домой;
         # 'FRIGHT' - испуг
         self.part_of_tile = 0
@@ -24,3 +24,19 @@ class Ghost(pygame.sprite.Sprite):
                                 'RIGHT': load_image('EYES_RIGHT.png', (0, 0, 0))},
                        'FRIGHT': {1: load_image('FRIGHT_PHASE_1.png', (0, 0, 0)),
                                   2: load_image('FRIGHT_PHASE_2.png', (0, 0, 0))}}
+
+    def change_image(self, direction, phase):
+        if self.mode == 'FRIGHT':
+            self.image = self.images['FRIGHT'][phase]
+        elif self.mode == 'RETURNING_HOME':
+            self.image = self.images['EYES'][direction]
+        else:
+            self.image = self.images[direction][phase]
+        self.rect = self.image.get_rect()
+        self.mask = pygame.mask.from_surface(self.image)
+        if direction in ('DOWN', 'UP'):
+            self.rect.y = self.y * CELL_SIZE + self.part_of_tile * 6 + TOP_MARGIN
+            self.rect.x = self.x * CELL_SIZE
+        else:
+            self.rect.x = self.x * CELL_SIZE + self.part_of_tile * 6
+            self.rect.y = self.y * CELL_SIZE + TOP_MARGIN
