@@ -1,6 +1,7 @@
 import pygame
 from load_image_function import load_image
 from game_sizes import CELL_SIZE, TOP_MARGIN
+from random import choice
 
 
 class Ghost(pygame.sprite.Sprite):
@@ -46,6 +47,60 @@ class Ghost(pygame.sprite.Sprite):
 
     def get_last_position(self):
         return self.last_x, self.last_y
+
+    def is_free(self, x, y):
+        try:
+            return self.parent_game.board[y][x] < 3
+        except IndexError:
+            return False
+
+    def find_path_step(self, start, target):
+        width = len(self.parent_game.board[0])
+        height = len(self.parent_game.board)
+        INF = 999
+        x, y = start
+        distance = [[INF] * width for _ in range(height)]
+        distance[y][x] = 0
+        prev = [[None] * width for _ in range(height)]
+        queue = [(x, y)]
+        while queue:
+            x, y = queue.pop(0)
+            for dx, dy in (1, 0), (0, 1), (-1, 0), (0, -1):
+                next_x, next_y = x + dx, y + dy
+
+                if 0 <= next_x < width and 0 <= next_y < height and \
+                        self.is_free(next_x, next_y) and distance[next_y][next_x] == INF:
+                    distance[next_y][next_x] = distance[y][x] + 1
+                    prev[next_y][next_x] = (x, y)
+                    queue.append((next_x, next_y))
+
+        x, y = target
+        if not -1 < x < width or not -1 < y < height:
+            return start
+        if distance[y][x] == INF or start == target:
+            return start
+        while prev[y][x] != start:
+            x, y = prev[y][x]
+        return x, y
+
+    def move(self, target):
+        x0, y0 = self.get_position()
+        self.next_x, self.next_y = self.find_path_step(self.get_position(), target)
+        if self.next_x < x0:
+            self.direction = 'LEFT'
+            self.change_image('LEFT', 1)
+        elif self.next_x > x0:
+            self.direction = 'RIGHT'
+            self.change_image('RIGHT', 1)
+        elif self.next_y < y0:
+            self.direction = 'UP'
+            self.change_image('UP', 1)
+        elif self.next_y > y0:
+            self.direction = 'DOWN'
+            self.change_image('DOWN', 1)
+        else:
+            self.change_image(choice(['LEFT', 'RIGHT', 'UP', 'DOWN']), choice([1, 2]))
+
 
 class Pinky(Ghost):
     def __init__(self, group):
