@@ -13,4 +13,3 @@ class Boost(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x * CELL_SIZE + 4
         self.rect.y = y * CELL_SIZE + 4 + TOP_MARGIN
-

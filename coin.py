@@ -13,4 +13,3 @@ class Coin(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x * CELL_SIZE + 10
         self.rect.y = y * CELL_SIZE + 10 + TOP_MARGIN
-

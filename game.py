@@ -121,6 +121,7 @@ class Game:
             with open('high_score.txt', 'r+') as file:
                 file.truncate(0)
                 file.write(str(self.points))
+
     def update_packman_direction(self):
         # Изменение направления движения пакмана
         if pygame.key.get_pressed()[pygame.K_w]:
